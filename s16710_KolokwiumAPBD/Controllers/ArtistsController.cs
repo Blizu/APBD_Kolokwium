@@ -22,7 +22,7 @@ namespace s16710_KolokwiumAPBD.Controllers
             _context = context;
         }
 
-        // GET: api/<ArtistsController>
+        // GET: api/Artists
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -50,7 +50,7 @@ namespace s16710_KolokwiumAPBD.Controllers
                     artist.NickName,
                     events = artist.ArtistEvents
                     .OrderByDescending(artistEvent => artistEvent.Event.StartDate)
-                    .Select(artistEvent => new { artistEvent.Event.IdEvent, artistEvent.Event.Name, artistEvent.Event.StartDate, artistEvent.Event.EndDate })
+                    .Select(artistEvent => new { artistEvent.Event.IdEvent, artistEvent.Event.Name, artistEvent.Event.StartDate, artistEvent.Event.EndDate, artistEvent.Event })
                 }).FirstAsync();
 
                 return Ok(artists);
@@ -69,9 +69,35 @@ namespace s16710_KolokwiumAPBD.Controllers
         }
 
         // PUT: api/Artists/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("{artistId}/events/{eventId}")]
+        public async Task<IActionResult> Put(int eventID, int artistID, [FromBody] UpdateArtistEvent request)
         {
+            
+            var events = await _context.Events.FindAsync(eventID);
+
+            if (events == null)
+
+                return NotFound("Nie można odnaleźć eventu");
+
+            var artists = await _context.Artists.FindAsync(artistID);
+
+            if (artists == null)
+
+                return NotFound("Nie można odnaleźć Artysty");
+
+
+            if (events.EndDate < request.PerformanceDate || events.StartDate > request.PerformanceDate)
+
+                return BadRequest("Data wykonania musi znajdować się między datą początkową a końcową");
+            
+
+            var artistEvent = await _context.ArtistsEvents.FindAsync(artists.IdArtist, eventID);
+
+            artistEvent.PerformanceDate = request.PerformanceDate;
+
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
 
         // DELETE: api/ApiWithActions/5

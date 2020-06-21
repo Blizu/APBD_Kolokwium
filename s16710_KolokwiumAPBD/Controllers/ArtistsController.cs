@@ -70,7 +70,7 @@ namespace s16710_KolokwiumAPBD.Controllers
 
         // PUT: api/Artists/5
         [HttpPut("{artistId}/events/{eventId}")]
-        public async Task<IActionResult> Put(int eventID, int artistID, [FromBody] UpdateArtistEvent request)
+        public async Task<IActionResult> Put(int eventID, int artistID, [FromBody] UpdateArtistEventRequest request)
         {
             
             var events = await _context.Events.FindAsync(eventID);
@@ -97,7 +97,12 @@ namespace s16710_KolokwiumAPBD.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok(new UpdateArtistEventResponse
+            {
+                IdArtist = artists.IdArtist,
+                IdEvent = events.IdEvent,
+                PerformanceDate = request.PerformanceDate
+            });
         }
 
         // DELETE: api/ApiWithActions/5

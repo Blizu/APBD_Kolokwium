@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace s16710_KolokwiumAPBD.Models
 {
-    public class UpdateArtistEvent
+    public class UpdateArtistEventRequest
     {
-
-        public int IdArtist { get; set; }
-        public int IdEvent { get; set; }
         public DateTime PerformanceDate { get; set; }
     }
 }
